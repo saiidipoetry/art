@@ -1,3 +1,4 @@
+
 /* =================================================
    How To Die Without Dying - S.I.N.
    Shared page behavior.
@@ -374,12 +375,19 @@ function startMirror() {
 }
 
 const NOTES_BACKEND = {
-  enabled: true,
-  fetchUrl: "https://art-xwrg.onrender.com/notes.json",
-  submitUrl: "https://art-xwrg.onrender.com/api/notes",
-  headers: {
-    "Content-Type": "application/json"
-  }
+  // set to false for 100% local (completely free, no server)
+  enabled: false,
+
+  // --- OPTION: free Supabase (uncomment and fill in) ---
+  // enabled: true,
+  // fetchUrl: "https://YOUR-PROJECT.supabase.co/rest/v1/notes?select=name,text,time&order=time.desc&limit=200",
+  // submitUrl: "https://YOUR-PROJECT.supabase.co/rest/v1/notes",
+  // headers: {
+  //   "Content-Type": "application/json",
+  //   "apikey": "YOUR-ANON-KEY",
+  //   "Authorization": "Bearer YOUR-ANON-KEY",
+  //   "Prefer": "return=minimal"
+  // }
 };
 
 const completions = [
@@ -452,7 +460,7 @@ function createNote(text, isUser, name = "") {
   if (name && !isUser) {
     const sig = document.createElement("span");
     sig.className = "note-signature";
-    sig.textContent = `— ${name}`;
+    sig.textContent = `â€” ${name}`;
     note.appendChild(sig);
   }
 
@@ -544,19 +552,18 @@ function submitNote() {
 }
 
 async function loadWallNotes() {
-  const wall = document.getElementById("wall-not, note.name));
-  });
+  const wall = document.getElementById("wall-notes");
+  if (!wall) return;
 
-  completions.forEach(text => {
-    if (!notes.find(note => note.text === text)) {
-      wall.appendChild(createNote(text, false, ""
+  const notes = await getWallNotes();
+
   notes.forEach(note => {
-    wall.appendChild(createNote(note.text, false));
+    wall.appendChild(createNote(note.text, false, note.name));
   });
 
   completions.forEach(text => {
     if (!notes.find(note => note.text === text)) {
-      wall.appendChild(createNote(text, false));
+      wall.appendChild(createNote(text, false, ""));
     }
   });
 }
