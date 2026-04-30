@@ -25,7 +25,6 @@ function getState() {
   const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
   const oldName = localStorage.getItem("sin_name");
 
-  // The first one-file version used sin_name; keep it so returning readers are still remembered.
   if (!state.name && oldName) {
     state.name = oldName;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -55,7 +54,6 @@ function handleForgetRequest() {
   return true;
 }
 
-/* Plays the voice note during the name-to-experience transition. */
 function playIntroAudio() {
   const audio = new Audio(INTRO_AUDIO_SRC);
   audio.volume = .55;
@@ -73,7 +71,6 @@ function playIntroAudio() {
     audio.addEventListener("error", finish, { once: true });
   });
 
-  // Missing files or browser audio rules should never stop the website flow.
   audio.play().catch(() => {});
   return durationPromise;
 }
@@ -92,7 +89,6 @@ function startAmbience() {
 
 function stopAmbience() {
   if (!ambienceAudio) return;
-
   ambienceAudio.pause();
   ambienceAudio = null;
   updateSoundToggle();
@@ -101,7 +97,6 @@ function stopAmbience() {
 function updateSoundToggle() {
   const toggle = document.querySelector("[data-sound-toggle]");
   if (!toggle) return;
-
   const muted = localStorage.getItem("sin_sound_muted") === "1";
   toggle.textContent = muted ? "sound on" : "sound off";
 }
@@ -109,11 +104,9 @@ function updateSoundToggle() {
 function bindSoundToggle() {
   const toggle = document.querySelector("[data-sound-toggle]");
   if (!toggle) return;
-
   updateSoundToggle();
   toggle.addEventListener("click", event => {
     event.preventDefault();
-
     const muted = localStorage.getItem("sin_sound_muted") === "1";
     if (muted) {
       localStorage.removeItem("sin_sound_muted");
@@ -122,7 +115,6 @@ function bindSoundToggle() {
       localStorage.setItem("sin_sound_muted", "1");
       stopAmbience();
     }
-
     updateSoundToggle();
   });
 }
@@ -137,23 +129,18 @@ function bindForgetLinks() {
   });
 }
 
-/* Draw a slightly different crack on every page, then reveal it based on progress. */
 function initCrack() {
   if (!crackPath) return;
-
   let d = "M2 0";
   for (let y = 20; y <= 1000; y += 16) {
     const x = 2 + (Math.random() - .5) * 2.4 + Math.sin(y * .018) * .7;
     d += ` L${x.toFixed(2)} ${y}`;
-
     if (Math.random() < .12) {
       const bx = x + (Math.random() - .5) * 1.5;
       d += ` M${x.toFixed(2)} ${y} l${(bx - x).toFixed(2)} 8`;
     }
   }
-
   crackPath.setAttribute("d", d);
-
   const len = crackPath.getTotalLength();
   crackPath.style.strokeDasharray = len;
   crackPath.style.strokeDashoffset = len * (1 - growth / 100);
@@ -162,7 +149,6 @@ function initCrack() {
 function setCrackProgress(value) {
   growth = Math.min(value, 100);
   if (!crackPath) return;
-
   const len = crackPath.getTotalLength();
   crackPath.style.strokeDashoffset = len * (1 - growth / 100);
 }
@@ -171,25 +157,19 @@ function countAnsweredMoments(state) {
   return ["why", "m1", "m2", "m3", "m4", "m5"].filter(key => state[key]).length;
 }
 
-/* Fade out the current page before following a link. */
 function navigateAfterChoice(link) {
   const stage = document.querySelector(".stage.active");
   if (stage) stage.classList.remove("active");
-
-  setTimeout(() => {
-    window.location.href = link.href;
-  }, 750);
+  setTimeout(() => { window.location.href = link.href; }, 750);
 }
 
 function bindChoiceLinks() {
   document.querySelectorAll("[data-save]").forEach(link => {
     link.addEventListener("click", event => {
       event.preventDefault();
-
       const key = link.dataset.save;
       const value = link.dataset.mirror;
       const state = saveState({ [key]: value });
-
       setCrackProgress(countAnsweredMoments(state) * 17);
       navigateAfterChoice(link);
     }, { once: true });
@@ -200,11 +180,9 @@ function bindRestartLinks() {
   document.querySelectorAll("[data-restart]").forEach(link => {
     link.addEventListener("click", event => {
       event.preventDefault();
-
       const state = getState();
       const freshState = state.name ? { name: state.name } : {};
       localStorage.setItem(STORAGE_KEY, JSON.stringify(freshState));
-
       window.location.href = link.href;
     });
   });
@@ -215,13 +193,11 @@ async function startIntro() {
   const nameInput = document.getElementById("name-input");
   const landing = document.getElementById("landing");
   const state = getState();
-
   if (!nameGate || !nameInput || !landing) return;
 
   function setReturningGreeting(name) {
     const index = Number(localStorage.getItem("sin_return_greeting") || "0");
     const greeting = returnGreetings[index % returnGreetings.length];
-
     localStorage.setItem("sin_return_greeting", String(index + 1));
     document.getElementById("l1").textContent = greeting[0];
     document.getElementById("l2").textContent = greeting[1];
@@ -253,16 +229,13 @@ async function startIntro() {
   nameInput.focus();
   nameInput.addEventListener("keydown", async event => {
     if (event.key !== "Enter" || !nameInput.value.trim()) return;
-
     nameInput.disabled = true;
     saveState({ name: nameInput.value.trim().toLowerCase() });
     localStorage.setItem("sin_name", nameInput.value.trim().toLowerCase());
-
     const transitionMs = await playIntroAudio();
     startAmbience();
     nameGate.style.transitionDuration = `${transitionMs}ms`;
     nameGate.style.opacity = "0";
-
     setTimeout(() => {
       nameGate.style.display = "none";
       revealLanding();
@@ -281,7 +254,6 @@ you stopped at the goodbye letters. you sat with it. you gave that moment the we
 after the last page you felt something you still haven't named. the book is comfortable with that. it was written in the same language.
 
 ${nameLine}`;
-
   return template
     .replace("could not stop even when you wanted to", state.m1 || "could not stop even when you wanted to")
     .replace("could not look away from the sixth attempt", `you ${state.m1 || "could not look away"} from the sixth attempt`)
@@ -292,14 +264,10 @@ ${nameLine}`;
 async function typeMirror(finalText, state) {
   const el = document.getElementById("mirror-text");
   if (!el) return;
-
   el.style.opacity = "1";
   el.innerHTML = "";
   el.style.whiteSpace = "pre-wrap";
-
-  let i = 0;
-  let slipIndex = 0;
-  let peekIndex = 0;
+  let i = 0, slipIndex = 0, peekIndex = 0;
   const cursor = '<span id="cursor">|</span>';
   const slips = [
     { at: finalText.indexOf("wanted to") + 9, wrong: " too", correct: " to" },
@@ -307,64 +275,33 @@ async function typeMirror(finalText, state) {
     { at: finalText.indexOf("knowing the cost") + 5, wrong: " the the cost", correct: " the cost" },
     { at: finalText.indexOf("judging"), wrong: " jugding", correct: " judging" }
   ].filter(slip => slip.at >= 0);
-
   const peeks = [];
   if (state.m1 && state.m1.includes("couldn't look away")) peeks.push({ at: 80, text: " Eden" });
   if (state.m4 && state.m4.includes("recognised")) peeks.push({ at: 200, text: " - S.I.N." });
   if (state.m5 && state.m5.includes("haven't named")) peeks.push({ at: 320, text: " Survive in Nothingness" });
-
   while (i < finalText.length) {
     if (peekIndex < peeks.length && i >= peeks[peekIndex].at) {
       const peek = peeks[peekIndex].text;
-
-      for (let c = 0; c < peek.length; c++) {
-        el.innerHTML = finalText.slice(0, i) + peek.slice(0, c + 1) + cursor;
-        await wait(38);
-      }
-
+      for (let c = 0; c < peek.length; c++) { el.innerHTML = finalText.slice(0, i) + peek.slice(0, c + 1) + cursor; await wait(38); }
       await wait(520);
-
-      for (let c = peek.length; c > 0; c--) {
-        el.innerHTML = finalText.slice(0, i) + peek.slice(0, c - 1) + cursor;
-        await wait(26);
-      }
-
-      peekIndex++;
-      await wait(140);
+      for (let c = peek.length; c > 0; c--) { el.innerHTML = finalText.slice(0, i) + peek.slice(0, c - 1) + cursor; await wait(26); }
+      peekIndex++; await wait(140);
     }
-
     if (slipIndex < slips.length && i === slips[slipIndex].at) {
       const slip = slips[slipIndex];
-      el.innerHTML = finalText.slice(0, i) + slip.wrong + cursor;
-      await wait(220);
-
-      for (let b = 0; b < slip.wrong.length; b++) {
-        el.innerHTML = finalText.slice(0, i) + slip.wrong.slice(0, slip.wrong.length - b - 1) + cursor;
-        await wait(32);
-      }
-
-      el.innerHTML = finalText.slice(0, i) + slip.correct + cursor;
-      await wait(110);
-      i += slip.correct.length;
-      slipIndex++;
-      continue;
+      el.innerHTML = finalText.slice(0, i) + slip.wrong + cursor; await wait(220);
+      for (let b = 0; b < slip.wrong.length; b++) { el.innerHTML = finalText.slice(0, i) + slip.wrong.slice(0, slip.wrong.length - b - 1) + cursor; await wait(32); }
+      el.innerHTML = finalText.slice(0, i) + slip.correct + cursor; await wait(110); i += slip.correct.length; slipIndex++; continue;
     }
-
     const char = finalText[i];
     if (Math.random() < .04 && /[a-z]/.test(char)) {
       const wrong = char === "e" ? "a" : String.fromCharCode(char.charCodeAt(0) + 1);
-      el.innerHTML = finalText.slice(0, i) + wrong + cursor;
-      await wait(70);
-      el.innerHTML = finalText.slice(0, i) + cursor;
-      await wait(45);
+      el.innerHTML = finalText.slice(0, i) + wrong + cursor; await wait(70);
+      el.innerHTML = finalText.slice(0, i) + cursor; await wait(45);
     }
-
-    el.innerHTML = finalText.slice(0, i + 1) + cursor;
-    i++;
-    await wait(28 + Math.random() * 22);
+    el.innerHTML = finalText.slice(0, i + 1) + cursor; i++; await wait(28 + Math.random() * 22);
     if (finalText[i - 1] === ".") await wait(280);
   }
-
   el.textContent = finalText;
 }
 
@@ -399,7 +336,6 @@ const completions = [
 
 async function fetchRemoteNotes() {
   if (!NOTES_BACKEND.enabled || !NOTES_BACKEND.fetchUrl) return [];
-
   try {
     const response = await fetch(NOTES_BACKEND.fetchUrl);
     if (!response.ok) throw new Error("Failed to load remote notes");
@@ -413,7 +349,6 @@ async function fetchRemoteNotes() {
 
 async function submitRemoteNote(note) {
   if (!NOTES_BACKEND.enabled || !NOTES_BACKEND.submitUrl) return false;
-
   try {
     const response = await fetch(NOTES_BACKEND.submitUrl, {
       method: "POST",
@@ -429,14 +364,12 @@ async function submitRemoteNote(note) {
 
 async function getWallNotes() {
   const [remote, local] = await Promise.all([fetchRemoteNotes(), Promise.resolve(JSON.parse(localStorage.getItem("sin_notes") || "[]"))]);
-
   const merged = [...remote];
   local.forEach(note => {
     if (!remote.some(remoteNote => remoteNote.text === note.text && remoteNote.name === note.name)) {
       merged.push(note);
     }
   });
-
   return merged.filter((note, index, self) => self.findIndex(item => item.text === note.text && item.name === note.name) === index);
 }
 
@@ -445,7 +378,7 @@ function createNote(text, isUser, name = "") {
   note.className = `note${isUser ? " user" : ""}`;
   note.textContent = `if you find her, tell her I - ${text}`;
 
-  if (name && !isUser) {
+  if (name) {
     const sig = document.createElement("span");
     sig.className = "note-signature";
     sig.textContent = `— ${name}`;
@@ -457,36 +390,22 @@ function createNote(text, isUser, name = "") {
   note.style.transform = `rotate(${(Math.random() * 16 - 8).toFixed(1)}deg)`;
   note.style.zIndex = isUser ? 100 : Math.floor(Math.random() * 12) + 1;
 
-  let dragging = false;
-  let startX = 0;
-  let startY = 0;
-  let startLeft = 0;
-  let startTop = 0;
-
+  let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
   note.addEventListener("pointerdown", event => {
     dragging = true;
     note.setPointerCapture(event.pointerId);
-    startX = event.clientX;
-    startY = event.clientY;
-
+    startX = event.clientX; startY = event.clientY;
     const rect = note.getBoundingClientRect();
-    startLeft = rect.left;
-    startTop = rect.top;
+    startLeft = rect.left; startTop = rect.top;
     note.style.zIndex = 200;
     event.preventDefault();
   });
-
   note.addEventListener("pointermove", event => {
     if (!dragging) return;
-
     note.style.left = `${((startLeft + event.clientX - startX) / window.innerWidth) * 100}%`;
     note.style.top = `${((startTop + event.clientY - startY) / window.innerHeight) * 100}%`;
   });
-
-  note.addEventListener("pointerup", () => {
-    dragging = false;
-  });
-
+  note.addEventListener("pointerup", () => { dragging = false; });
   return note;
 }
 
@@ -494,43 +413,30 @@ function submitNote() {
   const input = document.getElementById("wall-input");
   const wall = document.getElementById("wall-notes");
   if (!input || !wall || input.dataset.submitted) return;
-
   input.dataset.submitted = "1";
   const value = input.value.trim();
   const promptWrap = document.getElementById("wall-prompt-wrap");
-
   promptWrap.style.opacity = "0";
-  setTimeout(() => {
-    promptWrap.style.display = "none";
-  }, 900);
-
+  setTimeout(() => { promptWrap.style.display = "none"; }, 900);
   wall.classList.add("show");
-
   const state = getState();
-  const userNote = createNote(value || "-", true);
+  const userNote = createNote(value || "-", true, state.name || "anon");
   userNote.style.opacity = "0";
   userNote.style.transition = "opacity 1.6s ease, transform 1.6s ease";
-  userNote.style.left = "50%";
-  userNote.style.top = "44%";
+  userNote.style.left = "50%"; userNote.style.top = "44%";
   userNote.style.transform = "translateX(-50%) translateY(10px) rotate(0deg) scale(.92)";
   wall.appendChild(userNote);
-
   requestAnimationFrame(() => {
     setTimeout(() => {
       userNote.style.opacity = "1";
       userNote.style.transform = "translateX(-50%) translateY(0) rotate(-2deg) scale(1)";
     }, 120);
   });
-
   const noteObject = { text: value || "-", name: state.name || "anon", time: Date.now() };
   const allNotes = JSON.parse(localStorage.getItem("sin_notes") || "[]");
   allNotes.push(noteObject);
   localStorage.setItem("sin_notes", JSON.stringify(allNotes.slice(-50)));
-
-  if (NOTES_BACKEND.enabled) {
-    submitRemoteNote(noteObject);
-  }
-
+  if (NOTES_BACKEND.enabled) { submitRemoteNote(noteObject); }
   setCrackProgress(100);
   setTimeout(showFinal, 2800);
 }
@@ -538,13 +444,10 @@ function submitNote() {
 async function loadWallNotes() {
   const wall = document.getElementById("wall-notes");
   if (!wall) return;
-
   const notes = await getWallNotes();
-
   notes.forEach(note => {
     wall.appendChild(createNote(note.text, false, note.name));
   });
-
   completions.forEach(text => {
     if (!notes.find(note => note.text === text)) {
       wall.appendChild(createNote(text, false, ""));
@@ -554,17 +457,13 @@ async function loadWallNotes() {
 
 function showFinal() {
   document.getElementById("final-line").classList.add("visible");
-
   setTimeout(() => {
     document.getElementById("blackout").style.opacity = "1";
-
     const bye = document.getElementById("bye-name");
     const state = getState();
     if (bye && state.name) {
       bye.textContent = `bye ${state.name}`;
-      setTimeout(() => {
-        bye.style.opacity = ".38";
-      }, 800);
+      setTimeout(() => { bye.style.opacity = ".38"; }, 800);
     }
   }, 5600);
 }
@@ -572,7 +471,6 @@ function showFinal() {
 async function startWall() {
   const input = document.getElementById("wall-input");
   if (!input) return;
-
   await loadWallNotes();
   input.focus();
   input.addEventListener("keydown", event => {
@@ -582,7 +480,6 @@ async function startWall() {
 
 window.addEventListener("load", () => {
   if (handleForgetRequest()) return;
-
   const state = getState();
   setCrackProgress(countAnsweredMoments(state) * 17);
   initCrack();
@@ -590,11 +487,7 @@ window.addEventListener("load", () => {
   bindRestartLinks();
   bindForgetLinks();
   bindSoundToggle();
-
-  if (sessionStorage.getItem("sin_ambience_started") === "1") {
-    startAmbience();
-  }
-
+  if (sessionStorage.getItem("sin_ambience_started") === "1") { startAmbience(); }
   const page = document.body.dataset.page;
   if (page === "intro") startIntro();
   if (page === "mirror") startMirror();
