@@ -1,4 +1,3 @@
-
 /* =================================================
    How To Die Without Dying - S.I.N.
    Shared page behavior.
@@ -375,19 +374,9 @@ function startMirror() {
 }
 
 const NOTES_BACKEND = {
-  // set to false for 100% local (completely free, no server)
-  enabled: false,
-
-  // --- OPTION: free Supabase (uncomment and fill in) ---
-  // enabled: true,
-  // fetchUrl: "https://YOUR-PROJECT.supabase.co/rest/v1/notes?select=name,text,time&order=time.desc&limit=200",
-  // submitUrl: "https://YOUR-PROJECT.supabase.co/rest/v1/notes",
-  // headers: {
-  //   "Content-Type": "application/json",
-  //   "apikey": "YOUR-ANON-KEY",
-  //   "Authorization": "Bearer YOUR-ANON-KEY",
-  //   "Prefer": "return=minimal"
-  // }
+  enabled: true,
+  fetchUrl: "https://sin-wall.saiidipoetry.workers.dev/",
+  submitUrl: "https://sin-wall.saiidipoetry.workers.dev/"
 };
 
 const completions = [
@@ -412,7 +401,7 @@ async function fetchRemoteNotes() {
   if (!NOTES_BACKEND.enabled || !NOTES_BACKEND.fetchUrl) return [];
 
   try {
-    const response = await fetch(NOTES_BACKEND.fetchUrl, { headers: NOTES_BACKEND.headers });
+    const response = await fetch(NOTES_BACKEND.fetchUrl);
     if (!response.ok) throw new Error("Failed to load remote notes");
     const data = await response.json();
     return Array.isArray(data) ? data : [];
@@ -428,7 +417,7 @@ async function submitRemoteNote(note) {
   try {
     const response = await fetch(NOTES_BACKEND.submitUrl, {
       method: "POST",
-      headers: NOTES_BACKEND.headers,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(note)
     });
     return response.ok;
@@ -441,7 +430,6 @@ async function submitRemoteNote(note) {
 async function getWallNotes() {
   const [remote, local] = await Promise.all([fetchRemoteNotes(), Promise.resolve(JSON.parse(localStorage.getItem("sin_notes") || "[]"))]);
 
-  const localTexts = new Set(local.map(note => note.text));
   const merged = [...remote];
   local.forEach(note => {
     if (!remote.some(remoteNote => remoteNote.text === note.text && remoteNote.name === note.name)) {
@@ -460,7 +448,7 @@ function createNote(text, isUser, name = "") {
   if (name && !isUser) {
     const sig = document.createElement("span");
     sig.className = "note-signature";
-    sig.textContent = `â€” ${name}`;
+    sig.textContent = `— ${name}`;
     note.appendChild(sig);
   }
 
@@ -540,11 +528,7 @@ function submitNote() {
   localStorage.setItem("sin_notes", JSON.stringify(allNotes.slice(-50)));
 
   if (NOTES_BACKEND.enabled) {
-    submitRemoteNote(noteObject).then(success => {
-      if (!success) {
-        console.warn("Saved note locally because remote backend was unavailable.");
-      }
-    });
+    submitRemoteNote(noteObject);
   }
 
   setCrackProgress(100);
