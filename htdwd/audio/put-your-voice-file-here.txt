@@ -1,0 +1,8 @@
+Place your voice recording in this folder.
+
+Current file used by the website:
+
+intro.mp4
+
+The website plays it after the reader types their name and presses Enter.
+You can change the filename in script.js by editing INTRO_AUDIO_SRC.

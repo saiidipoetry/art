@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Wall - S.I.N.</title>
+  <link rel="icon" href="images/sin-favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="wall" class="dark">
+  <svg id="crack" viewBox="0 0 4 1000" preserveAspectRatio="none" aria-hidden="true">
+    <path id="crack-path" d="M2 0 L2 1000" stroke="#c8b888" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.85"/>
+  </svg>
+  <div id="blackout"></div>
+  <div id="bye-name"></div>
+  <a class="restart-link" href="index.html" data-restart>begin again</a>
+  <button class="sound-toggle" type="button" data-sound-toggle>sound off</button>
+
+  <main class="stage active">
+    <div class="center" id="wall-prompt-wrap">
+      <p class="prompt">if you find her, tell her I -</p>
+      <input id="wall-input" type="text" maxlength="80" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div id="wall-notes"></div>
+    <p id="final-line">she may never be found. you finished the sentence anyway. that tells you something.</p>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

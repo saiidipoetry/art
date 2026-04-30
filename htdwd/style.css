@@ -1,0 +1,491 @@
+/* =================================================
+   How To Die Without Dying - S.I.N.
+   Shared styling for all pages.
+   ================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: #0f0d09;
+  color: #e8dfc8;
+  font-family: "Cormorant Garamond", serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: auto;
+  transition: background 2s ease;
+}
+
+body.dark {
+  background: #070603;
+}
+
+/* Subtle grain texture. Kept in CSS so the HTML stays readable. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: .055;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+body.dark::before {
+  opacity: .03;
+}
+
+#crack {
+  position: fixed;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 100vh;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  opacity: .9;
+}
+
+#crack-path {
+  filter: drop-shadow(0 0 3px rgba(200, 184, 136, .15));
+  transition: stroke-dashoffset 1.8s cubic-bezier(.22, .61, .36, 1);
+}
+
+#blackout {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 3.8s ease;
+  z-index: 60;
+}
+
+.restart-link {
+  position: fixed;
+  left: 1.2rem;
+  top: 1rem;
+  z-index: 30;
+  color: #c8b88875;
+  font-family: "Cormorant Garamond", serif;
+  font-size: .9rem;
+  font-style: italic;
+  letter-spacing: 0;
+  text-decoration: none;
+  transition: color .35s ease, opacity .35s ease;
+}
+
+.sound-toggle {
+  position: fixed;
+  right: 1.2rem;
+  top: 1rem;
+  z-index: 30;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #c8b88875;
+  cursor: pointer;
+  font-family: "Cormorant Garamond", serif;
+  font-size: .9rem;
+  font-style: italic;
+  letter-spacing: 0;
+  transition: color .35s ease;
+}
+
+.forget-link {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 110;
+  color: #c8b88860;
+  transform: translateX(-50%);
+  font-family: "Cormorant Garamond", serif;
+  font-size: .86rem;
+  font-style: italic;
+  letter-spacing: 0;
+  text-decoration: none;
+  transition: color .35s ease, opacity .35s ease;
+}
+
+.restart-link:hover,
+.restart-link:focus,
+.sound-toggle:hover,
+.sound-toggle:focus,
+.forget-link:hover,
+.forget-link:focus {
+  color: #c8b888;
+  outline: 0;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6vh 7vw;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.8s ease;
+  z-index: 5;
+  overflow-y: auto;
+}
+
+.stage.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.center {
+  width: 100%;
+  max-width: 740px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.name-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f0d09;
+  transition: opacity 1.2s ease;
+}
+
+.name-card {
+  text-align: center;
+}
+
+.name-card p {
+  margin: 0 0 1.2rem;
+  color: #c8b888;
+  font-family: "IM Fell English", serif;
+  font-size: 1.3rem;
+  opacity: .8;
+}
+
+.name-card input,
+#wall-input {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(200, 184, 136, .3);
+  color: #e8dfc8;
+  font-family: "IM Fell English", serif;
+  font-style: italic;
+  text-align: center;
+  outline: 0;
+  caret-color: #c8b888;
+}
+
+.name-card input {
+  width: 220px;
+  padding: .4rem;
+  font-size: 1.4rem;
+}
+
+.line {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 2.6s ease, transform 2.6s ease;
+  font-family: "IM Fell English", serif;
+  font-size: clamp(1.7rem, 4.5vw, 2.5rem);
+  line-height: 1.3;
+  color: #e8dfc8;
+  margin: .4em 0;
+  font-weight: 400;
+}
+
+.line.visible {
+  opacity: 1;
+  transform: none;
+}
+
+#l2 {
+  color: #d4cbb3;
+}
+
+#l3 {
+  margin-top: 1.4em;
+  color: #c8b888;
+  font-style: italic;
+  font-size: clamp(1.4rem, 3.8vw, 2rem);
+}
+
+.choices,
+.options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.choices {
+  margin-top: 3.5rem;
+  gap: 1.15rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 2s ease .4s, transform 2s ease .4s;
+}
+
+.choices.visible {
+  opacity: 1;
+  transform: none;
+}
+
+.options {
+  gap: 1.05rem;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 1.6s ease .7s, transform 1.6s ease .7s;
+}
+
+.stage.active .options {
+  opacity: 1;
+  transform: none;
+}
+
+.fragment {
+  display: inline-block;
+  border: 0;
+  padding: .2em .4em;
+  background: none;
+  color: #c8b888;
+  opacity: .74;
+  cursor: pointer;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.08rem, 3.3vw, 1.35rem);
+  font-style: italic;
+  line-height: 1.45;
+  text-align: center;
+  text-decoration: none;
+  letter-spacing: 0;
+  transition: opacity .4s ease, color .4s ease, transform .4s ease;
+}
+
+.options .fragment {
+  color: #d6cdb4;
+  font-size: clamp(1.02rem, 3.1vw, 1.26rem);
+}
+
+.fragment:hover,
+.fragment:focus {
+  color: #e8dfc8;
+  opacity: 1;
+  outline: 0;
+  transform: translateY(-1px);
+}
+
+.prompt {
+  max-width: 680px;
+  margin: 0 auto 2.6rem;
+  color: #e8dfc8;
+  opacity: 0;
+  transform: translateY(12px);
+  font-family: "IM Fell English", serif;
+  font-size: clamp(1.45rem, 4.1vw, 2.15rem);
+  line-height: 1.42;
+  font-weight: 400;
+  transition: opacity 1.8s ease, transform 1.8s ease;
+}
+
+.stage.active .prompt {
+  opacity: 1;
+  transform: none;
+  transition-delay: .35s;
+}
+
+#mirror-text {
+  max-width: 620px;
+  margin: 0 auto;
+  color: #e8dfc8;
+  opacity: 0;
+  font-size: clamp(1.18rem, 3.4vw, 1.52rem);
+  font-weight: 300;
+  line-height: 1.78;
+  text-align: left;
+  transition: opacity 3.2s ease;
+}
+
+.stage.active #mirror-text {
+  opacity: 1;
+  transition-delay: .6s;
+}
+
+#continue-btn {
+  display: inline-block;
+  margin-top: 3.8rem;
+  padding: .4rem .8rem;
+  border: 0;
+  background: none;
+  color: #c8b88870;
+  cursor: pointer;
+  font-family: "Cormorant Garamond", serif;
+  font-size: .92rem;
+  letter-spacing: .14em;
+  text-decoration: none;
+  text-transform: lowercase;
+  opacity: 0;
+  transition: opacity 2.2s ease 2.2s, color .3s;
+}
+
+.stage.active #continue-btn {
+  opacity: 1;
+}
+
+#continue-btn:hover {
+  color: #c8b888;
+}
+
+#wall-prompt-wrap {
+  position: relative;
+  z-index: 10;
+  transition: opacity 1.2s ease;
+}
+
+#wall-prompt-wrap .prompt {
+  margin-bottom: .9rem;
+  color: #c8b888;
+}
+
+#wall-input {
+  width: min(84vw, 540px);
+  padding: .65rem .2rem;
+  font-size: clamp(1.22rem, 3.9vw, 1.62rem);
+  transition: border-color .3s;
+}
+
+#wall-input:focus {
+  border-bottom-color: rgba(200, 184, 136, .55);
+}
+
+#wall-notes {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.6s ease;
+}
+
+#wall-notes.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.note {
+  position: absolute;
+  max-width: min(230px, 44vw);
+  padding: .9rem 1.15rem .95rem;
+  background: #e8dfc8;
+  background-image: linear-gradient(180deg, #ede6d1 0%, #e8dfc8 100%);
+  color: #1a1611;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .48);
+  cursor: grab;
+  font-family: "IM Fell English", serif;
+  font-size: clamp(.88rem, 2.15vw, 1.03rem);
+  line-height: 1.36;
+  user-select: none;
+  touch-action: none;
+  transform-origin: center;
+}
+
+.note:active {
+  cursor: grabbing;
+}
+
+.note::before,
+.note::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  background: #e8dfc8;
+}
+
+.note::before {
+  top: -5px;
+  clip-path: polygon(0 60%, 3% 38%, 7% 62%, 12% 34%, 17% 58%, 23% 32%, 28% 56%, 34% 40%, 40% 60%, 46% 35%, 52% 57%, 58% 38%, 64% 61%, 70% 36%, 76% 58%, 82% 33%, 88% 55%, 94% 40%, 100% 60%, 100% 100%, 0 100%);
+}
+
+.note::after {
+  bottom: -5px;
+  transform: rotate(180deg);
+  clip-path: polygon(0 60%, 4% 36%, 9% 61%, 15% 39%, 21% 56%, 27% 31%, 33% 58%, 39% 37%, 45% 63%, 51% 34%, 57% 59%, 63% 41%, 70% 60%, 77% 35%, 83% 57%, 90% 38%, 96% 60%, 100% 42%, 100% 100%, 0 100%);
+}
+
+.note.user {
+  z-index: 100 !important;
+  background: #f1e9d3;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, .6), 0 0 0 1px rgba(200, 184, 136, .18);
+}
+
+#final-line {
+  position: fixed;
+  left: 50%;
+  bottom: 13vh;
+  z-index: 20;
+  width: calc(100% - 3rem);
+  max-width: 620px;
+  color: #c8b888;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(12px);
+  font-family: "IM Fell English", serif;
+  font-size: clamp(1.06rem, 3.3vw, 1.36rem);
+  font-style: italic;
+  line-height: 1.55;
+  text-align: center;
+  transition: opacity 2.6s ease, transform 2.6s ease;
+}
+
+#final-line.visible {
+  opacity: .93;
+  transform: translateX(-50%) translateY(0);
+}
+
+#bye-name {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 70;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  color: #c8b888;
+  font-family: "IM Fell English", serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  letter-spacing: .04em;
+  transition: opacity 2.8s ease;
+}
+
+@media (hover: none) {
+  .fragment:active {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .stage {
+    padding: 5vh 6vw;
+  }
+
+  .fragment {
+    max-width: 100%;
+  }
+
+  .note {
+    max-width: 60vw;
+    padding: .75rem .95rem;
+  }
+
+  #final-line {
+    bottom: 10vh;
+  }
+}
