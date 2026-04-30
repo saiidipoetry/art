@@ -419,6 +419,17 @@ body.dark::before {
   clip-path: polygon(0 60%, 4% 36%, 9% 61%, 15% 39%, 21% 56%, 27% 31%, 33% 58%, 39% 37%, 45% 63%, 51% 34%, 57% 59%, 63% 41%, 70% 60%, 77% 35%, 83% 57%, 90% 38%, 96% 60%, 100% 42%, 100% 100%, 0 100%);
 }
 
+.note-signature {
+  display: block;
+  margin-top: .6rem;
+  padding-top: .5rem;
+  border-top: 1px solid #1a161140;
+  font-size: 0.75em;
+  font-style: italic;
+  color: #1a161175;
+  text-align: right;
+}
+
 .note.user {
   z-index: 100 !important;
   background: #f1e9d3;

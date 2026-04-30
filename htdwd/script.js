@@ -373,6 +373,15 @@ function startMirror() {
   typeMirror(buildMirrorText(state), state);
 }
 
+const NOTES_BACKEND = {
+  enabled: true,
+  fetchUrl: "https://raw.githubusercontent.com/saiidipoetry/art/main/notes.json",
+  submitUrl: "",
+  headers: {
+    "Content-Type": "application/json"
+  }
+};
+
 const completions = [
   "never stopped looking",
   "was sorry it took this long",
@@ -391,10 +400,61 @@ const completions = [
   "am not clean either"
 ];
 
-function createNote(text, isUser) {
+async function fetchRemoteNotes() {
+  if (!NOTES_BACKEND.enabled || !NOTES_BACKEND.fetchUrl) return [];
+
+  try {
+    const response = await fetch(NOTES_BACKEND.fetchUrl, { headers: NOTES_BACKEND.headers });
+    if (!response.ok) throw new Error("Failed to load remote notes");
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.warn("Remote notes fetch failed:", error);
+    return [];
+  }
+}
+
+async function submitRemoteNote(note) {
+  if (!NOTES_BACKEND.enabled || !NOTES_BACKEND.submitUrl) return false;
+
+  try {
+    const response = await fetch(NOTES_BACKEND.submitUrl, {
+      method: "POST",
+      headers: NOTES_BACKEND.headers,
+      body: JSON.stringify(note)
+    });
+    return response.ok;
+  } catch (error) {
+    console.warn("Remote note submission failed:", error);
+    return false;
+  }
+}
+
+async function getWallNotes() {
+  const [remote, local] = await Promise.all([fetchRemoteNotes(), Promise.resolve(JSON.parse(localStorage.getItem("sin_notes") || "[]"))]);
+
+  const localTexts = new Set(local.map(note => note.text));
+  const merged = [...remote];
+  local.forEach(note => {
+    if (!remote.some(remoteNote => remoteNote.text === note.text && remoteNote.name === note.name)) {
+      merged.push(note);
+    }
+  });
+
+  return merged.filter((note, index, self) => self.findIndex(item => item.text === note.text && item.name === note.name) === index);
+}
+
+function createNote(text, isUser, name = "") {
   const note = document.createElement("div");
   note.className = `note${isUser ? " user" : ""}`;
   note.textContent = `if you find her, tell her I - ${text}`;
+
+  if (name && !isUser) {
+    const sig = document.createElement("span");
+    sig.className = "note-signature";
+    sig.textContent = `— ${name}`;
+    note.appendChild(sig);
+  }
 
   note.style.left = `${4 + Math.random() * 68}%`;
   note.style.top = `${8 + Math.random() * 62}%`;
@@ -450,15 +510,7 @@ function submitNote() {
 
   wall.classList.add("show");
 
-  const saved = JSON.parse(localStorage.getItem("sin_notes") || "[]");
-  saved.forEach(note => wall.appendChild(createNote(note.text, false)));
-
-  completions.forEach(text => {
-    if (!saved.find(note => note.text === text)) {
-      wall.appendChild(createNote(text, false));
-    }
-  });
-
+  const state = getState();
   const userNote = createNote(value || "-", true);
   userNote.style.opacity = "0";
   userNote.style.transition = "opacity 1.6s ease, transform 1.6s ease";
@@ -474,13 +526,39 @@ function submitNote() {
     }, 120);
   });
 
-  const state = getState();
+  const noteObject = { text: value || "-", name: state.name || "anon", time: Date.now() };
   const allNotes = JSON.parse(localStorage.getItem("sin_notes") || "[]");
-  allNotes.push({ text: value || "-", name: state.name || "anon", time: Date.now() });
+  allNotes.push(noteObject);
   localStorage.setItem("sin_notes", JSON.stringify(allNotes.slice(-50)));
+
+  if (NOTES_BACKEND.enabled) {
+    submitRemoteNote(noteObject).then(success => {
+      if (!success) {
+        console.warn("Saved note locally because remote backend was unavailable.");
+      }
+    });
+  }
 
   setCrackProgress(100);
   setTimeout(showFinal, 2800);
+}
+
+async function loadWallNotes() {
+  const wall = document.getElementById("wall-not, note.name));
+  });
+
+  completions.forEach(text => {
+    if (!notes.find(note => note.text === text)) {
+      wall.appendChild(createNote(text, false, ""
+  notes.forEach(note => {
+    wall.appendChild(createNote(note.text, false));
+  });
+
+  completions.forEach(text => {
+    if (!notes.find(note => note.text === text)) {
+      wall.appendChild(createNote(text, false));
+    }
+  });
 }
 
 function showFinal() {
@@ -500,10 +578,11 @@ function showFinal() {
   }, 5600);
 }
 
-function startWall() {
+async function startWall() {
   const input = document.getElementById("wall-input");
   if (!input) return;
 
+  await loadWallNotes();
   input.focus();
   input.addEventListener("keydown", event => {
     if (event.key === "Enter") submitNote();
