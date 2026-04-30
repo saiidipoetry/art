@@ -376,7 +376,7 @@ function startMirror() {
 const NOTES_BACKEND = {
   enabled: true,
   fetchUrl: "https://raw.githubusercontent.com/saiidipoetry/art/main/notes.json",
-  submitUrl: "",
+  submitUrl: "https://art-xwrg.onrender.com/api/notes",
   headers: {
     "Content-Type": "application/json"
   }
