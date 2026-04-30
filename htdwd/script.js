@@ -374,8 +374,8 @@ function startMirror() {
 }
 
 const NOTES_BACKEND = {
-  enabled: false,
-  fetchUrl: "https://raw.githubusercontent.com/saiidipoetry/art/main/notes.json",
+  enabled: true,
+  fetchUrl: "https://art-xwrg.onrender.com/notes.json",
   submitUrl: "https://art-xwrg.onrender.com/api/notes",
   headers: {
     "Content-Type": "application/json"

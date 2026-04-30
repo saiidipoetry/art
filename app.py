@@ -75,6 +75,16 @@ def submit_note():
 
     return jsonify({"success": True, "note": new_note}), 201
 
+@app.route("/notes.json", methods=["GET"])
+def serve_notes_json():
+    """Serve notes.json directly for frontend fetch."""
+    notes = load_notes()
+    response = jsonify(notes)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'GET')
+    return response
+
 @app.route("/health", methods=["GET"])
 def health():
     """Health check endpoint."""
